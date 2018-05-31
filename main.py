@@ -35,10 +35,10 @@ def Config_File():
             input_APIKey = input("What is your API Key? ")
             input_EMail = input("What is your email address? ")
             input_ToolDesc = input("Describe this tool. ").strip()
-            dict_config = { "APIKey": input_APIKey, \
+            config_data = { "APIKey": input_APIKey, \
                             "Email": input_EMail, \
                             "Tool Description": input_ToolDesc}
-            config_file.write(json.dumps(dict_config))
+            config_file.write(json.dumps(config_data))
     return config_data
 
 # Post list of PMIDs to Eutrez History Server
@@ -58,7 +58,7 @@ def Post_PMID_To_History_Server(config):
     
 # Query EFetch for full entry information
 def Fetch_Entries_From_Server(config, WE, QK):
-    Number_Of_Retrievals = 500
+    Number_Of_Retrievals = 5
     HTTP_Post_Data = {"db": PubMed_database, \
                       "tool": config["Tool Description"].strip(), \
                       "email": config["Email"].strip(), \
