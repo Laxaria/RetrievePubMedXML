@@ -52,7 +52,7 @@ def Post_PMID_To_History_Server(config):
                       "api_key": config["APIKey"].strip(), \
                       "id": ",".join(PMID_List_Count).strip()}
     data = urllib.parse.urlencode(HTTP_Post_Data)
-    data = data.encode('utf-8')
+    data = data.encode('ascii')
     req = urllib.request.Request(PubMed_eUtil_url_POST, data)
     with urllib.request.urlopen(req) as response:
         root = lxml.etree.parse(response)
@@ -61,7 +61,7 @@ def Post_PMID_To_History_Server(config):
     return [WebEnv, Query_Key]
     
 # Query EFetch for full entry information
-def Fetch_Entries_From_Server(config, WE,QK):
+def Fetch_Entries_From_Server(config, WE, QK):
     Number_Of_Retrievals = 10
     HTTP_Post_Data = {"db": PubMed_database, \
                       "tool": config["Tool Description"].strip(), \
@@ -72,7 +72,7 @@ def Fetch_Entries_From_Server(config, WE,QK):
                       "retmode": "xml", \
                       "retmax": Number_Of_Retrievals}
     data = urllib.parse.urlencode(HTTP_Post_Data)
-    data = data.encode('utf-8')
+    data = data.encode('ascii')
     req = urllib.request.Request(PubMed_eUtil_url_FETCH, data)
     with urllib.request.urlopen(req) as response:
         returnedXML = lxml.etree.parse(response)
