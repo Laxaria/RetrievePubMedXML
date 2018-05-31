@@ -1,8 +1,6 @@
-import lxml.etree
-# import pandas as pd
+from lxml import etree as ET
+import requests
 import json
-import urllib.parse
-import urllib.request
 import time
 
 # Establish config parameters
@@ -24,7 +22,8 @@ def PMID_List_Import():
                 except ValueError:
                     pass
     except IOError:
-        print("Missing PMID List.txt file")
+        print("Missing PMID List.txt file\nPlease make sure there is a \"PMID List.txt\" file in the same working directory, \
+               with a PMID number on its own line.")
 
 # Create or load config file storing API keys and other identifying information
 def Config_File():
@@ -51,18 +50,15 @@ def Post_PMID_To_History_Server(config):
                       "email": config["Email"].strip(), \
                       "api_key": config["APIKey"].strip(), \
                       "id": ",".join(PMID_List_Count).strip()}
-    data = urllib.parse.urlencode(HTTP_Post_Data)
-    data = data.encode('ascii')
-    req = urllib.request.Request(PubMed_eUtil_url_POST, data)
-    with urllib.request.urlopen(req) as response:
-        root = lxml.etree.parse(response)
-        WebEnv = root.find('WebEnv').text
-        Query_Key = root.find('QueryKey').text
+    response = requests.post(PubMed_eUtil_url_POST, params=HTTP_Post_Data)
+    root = ET.fromstring(response.content)
+    WebEnv = root.find('WebEnv').text
+    Query_Key = root.find('QueryKey').text
     return [WebEnv, Query_Key]
     
 # Query EFetch for full entry information
 def Fetch_Entries_From_Server(config, WE, QK):
-    Number_Of_Retrievals = 10
+    Number_Of_Retrievals = 500
     HTTP_Post_Data = {"db": PubMed_database, \
                       "tool": config["Tool Description"].strip(), \
                       "email": config["Email"].strip(), \
@@ -71,13 +67,9 @@ def Fetch_Entries_From_Server(config, WE, QK):
                       "query_key":  QK, \
                       "retmode": "xml", \
                       "retmax": Number_Of_Retrievals}
-    data = urllib.parse.urlencode(HTTP_Post_Data)
-    data = data.encode('ascii')
-    req = urllib.request.Request(PubMed_eUtil_url_FETCH, data)
-    with urllib.request.urlopen(req) as response:
-        returnedXML = lxml.etree.parse(response)
-        with open("fetched data.xml", "w") as fetched_data:
-            fetched_data.write(lxml.etree.tostring(returnedXML).decode('utf-8'))
+    response = requests.post(PubMed_eUtil_url_FETCH, params=HTTP_Post_Data)
+    with open("fetched data.xml", "w") as fetched_data:
+        fetched_data.write(response.text)
 
 def main():
     PMID_List_Import()
